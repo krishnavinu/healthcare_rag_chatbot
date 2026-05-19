@@ -1,17 +1,34 @@
-# College FAQ Chatbot (GenAI Project)
+# Domain-Specific Chatbot Using Retrieval-Augmented Generation (RAG) for Healthcare FAQs
 
-A **Retrieval-Augmented Generation (RAG)** chatbot that answers college-related questions using a local knowledge base (`college_data.txt`) and **Google FLAN-T5** running on your computer.
+A **Retrieval-Augmented Generation (RAG)** system that answers **healthcare domain** frequently asked questions from a curated knowledge base (`healthcare_data.txt`), using **Google FLAN-T5** for grounded text generation and a **Streamlit** chat interface.
 
-Built for a college GenAI submission with a **Streamlit** chat interface.
+> **Disclaimer:** This project is for educational demonstration only. It does not provide medical diagnosis, treatment advice, or emergency services. Always consult qualified healthcare professionals for medical decisions.
 
 ---
 
-## What this project does
+## Project overview
 
-1. **Retrieve** — Finds the most relevant FAQ paragraphs from `college_data.txt` using **TF-IDF** and cosine similarity.
-2. **Generate** — Uses **`google/flan-t5-base`** (Hugging Face Transformers) to write a short answer using only that context.
+| Component | Technology | Role |
+|-----------|------------|------|
+| Knowledge base | `healthcare_data.txt` | Hospital/healthcare FAQ content (appointments, ED, insurance, labs, etc.) |
+| Retriever | TF-IDF + cosine similarity (scikit-learn) | Finds top relevant chunks for each user question |
+| Generator | `google/flan-t5-base` (Transformers) | Produces answers using **only** retrieved context |
+| Frontend | Streamlit (`app.py`) | Interactive chat UI for demos and submission |
 
-If the answer is not in the context, the bot is prompted to say *"Information not available"*.
+### How RAG works
+
+```mermaid
+flowchart LR
+    A[User healthcare question] --> B[TF-IDF retriever]
+    B --> C[Top-k chunks from healthcare_data.txt]
+    C --> D[Prompt with context]
+    D --> E[FLAN-T5 local generation]
+    E --> F[Grounded FAQ answer]
+```
+
+1. **Retrieve** — Rank FAQ paragraphs by similarity to the question.
+2. **Generate** — FLAN-T5 writes a short answer constrained to that context.
+3. If the fact is missing from the knowledge base, the model is instructed to reply with *"Information not available"*.
 
 ---
 
@@ -19,17 +36,18 @@ If the answer is not in the context, the bot is prompted to say *"Information no
 
 ```
 genai/
-├── app_local.py         # Streamlit web app (main demo)
-├── college_chatbot.py   # RAG logic: Retriever + LocalGenerator
-├── college_data.txt     # College FAQ knowledge base
-├── streamlit_ui.py      # Shared Streamlit chat UI
-├── requirements.txt     # Python dependencies
-├── README.md            # This file
-└── output/              # Screenshots for report / viva
-    └── README.md        # Suggested screenshot names
+├── app.py                 # Streamlit chat application (main entry)
+├── healthcare_chatbot.py  # RAG pipeline: Retriever + LocalGenerator
+├── healthcare_data.txt    # Healthcare FAQ knowledge base
+├── streamlit_ui.py        # Shared Streamlit UI components
+├── download_model.py      # Optional: pre-download FLAN-T5
+├── requirements.txt
+├── README.md
+└── output/                # Screenshots for report / viva
+    └── README.md
 ```
 
-**Output screenshots:** Save demo images in the **`output/`** folder for your report. See `output/README.md` for naming ideas (e.g. `01_streamlit_home.png`, `02_sample_chat.png`, `03_retrieved_context.png`).
+**Output screenshots:** Save demonstration images in the **`output/`** folder. See `output/README.md` for suggested file names.
 
 ---
 
@@ -37,14 +55,12 @@ genai/
 
 - **Python 3.10+**
 - **Internet** on first run (downloads FLAN-T5 once, ~1 GB)
-- **RAM:** ~4 GB or more recommended
+- **RAM:** ~4 GB recommended
 - **Disk:** ~2 GB free for model cache
 
 ---
 
 ## Installation
-
-Open PowerShell in the project folder:
 
 ```powershell
 cd "C:\Users\M krishna Prasad\Desktop\genai"
@@ -53,74 +69,50 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-**Important:** Use **Transformers 4.x** (`transformers>=4.40.0,<5.0.0` in `requirements.txt`). Transformers 5.x removed the `text2text-generation` pipeline task used by older FLAN-T5 examples.
+Use **Transformers 4.x** (`transformers>=4.40.0,<5.0.0` in `requirements.txt`).
 
 ---
 
 ## How to run
 
-### Streamlit app (recommended for demo & submission)
+```powershell
+streamlit run app.py
+```
+
+Open `http://localhost:8501` in your browser.
+
+**First run:** FLAN-T5 downloads from Hugging Face (~1 GB). This can take several minutes.
+
+**Later runs:** Faster startup; works offline after the model is cached.
+
+### Optional: download model first
 
 ```powershell
-streamlit run app_local.py
-```
-
-Your browser opens at `http://localhost:8501`.
-
-**First run:** Loading FLAN-T5 can take several minutes while the model downloads from Hugging Face. Later runs are faster.
-
-**After the model is cached:** The app can work **offline** (no internet needed for generation).
-
-### What you see in the UI
-
-- Chat interface for questions and answers
-- Sidebar with sample questions and project description
-- **View retrieved context** expander — shows which knowledge-base chunks were used (useful for viva / report)
-- **Clear chat** button to reset the conversation
-
----
-
-## Model download (first time only)
-
-The first time you run `app_local.py`, Hugging Face downloads **`google/flan-t5-base`** (~1 GB) to your user cache, for example:
-
-`C:\Users\<you>\.cache\huggingface\hub\`
-
-You do **not** need a separate download script — starting the app is enough.
-
-This matches the official Hugging Face usage (`AutoTokenizer` + `AutoModelForSeq2SeqLM`).
-
----
-
-## How RAG works
-
-```mermaid
-flowchart LR
-    A[User question] --> B[TF-IDF retriever]
-    B --> C[Top 2 chunks from college_data.txt]
-    C --> D[Prompt with context]
-    D --> E[FLAN-T5 on your PC]
-    E --> F[Answer in Streamlit]
+python download_model.py
 ```
 
 ---
 
-## Sample questions to try
+## Sample questions
 
-- When are undergraduate admissions open?
-- What B.Tech branches are offered?
-- What is the annual tuition fee?
-- What are the library timings?
-- How can I contact the admin office?
+- How do I book an appointment?
+- What are the emergency department hours?
+- Does the hospital accept health insurance?
+- How can I get my lab test results?
+- What are the visiting hours for patients?
+
+Use the sidebar sample buttons in the app, or type your own FAQ-style questions.
 
 ---
 
 ## Customizing the knowledge base
 
-1. Edit `college_data.txt`.
-2. Write **one topic per paragraph block**.
+1. Edit `healthcare_data.txt`.
+2. One topic per paragraph block.
 3. Separate blocks with a **blank line**.
-4. Restart Streamlit (stop with `Ctrl+C`, then run `streamlit run app_local.py` again).
+4. Restart Streamlit after changes.
+
+Example topics: appointments, emergency, visiting hours, insurance, laboratory, pharmacy, telemedicine, billing, vaccinations.
 
 ---
 
@@ -128,36 +120,38 @@ flowchart LR
 
 | Issue | Fix |
 |-------|-----|
-| `Unknown task text2text-generation` | Install Transformers 4.x: `pip install "transformers>=4.40.0,<5.0.0"` |
-| Very slow first response | Normal — model is downloading/loading; wait for the spinner |
-| `college_data.txt` not found | Keep the file in the same folder as `app_local.py` |
-| Out of memory | Close other apps; ensure ~4 GB RAM free |
-| Wrong or vague answers | Rephrase the question; add more detail to `college_data.txt` |
-
----
-
-## Why local FLAN-T5 (not Hugging Face free API)?
-
-The model **`google/flan-t5-base`** is meant to be loaded with **Transformers on your machine** (as on its [Hugging Face model card](https://huggingface.co/google/flan-t5-base)).
-
-It is **not** available on Hugging Face’s free **Inference Providers** API (“This model isn't deployed by any Inference Provider”). For this project, **local mode** is the correct and supported approach.
+| `Unknown task text2text-generation` | `pip install "transformers>=4.40.0,<5.0.0"` |
+| Slow first response | Model downloading/loading — wait for spinner |
+| `healthcare_data.txt` not found | Keep file in project root next to `app.py` |
+| Out of memory | Close other apps; free ~4 GB RAM |
+| Vague or wrong answers | Improve FAQ text in `healthcare_data.txt`; rephrase question |
 
 ---
 
 ## Tech stack
 
-| Component | Technology |
-|-----------|------------|
-| Language | Python |
-| Retrieval | scikit-learn (TF-IDF + cosine similarity) |
-| Generation | Transformers + PyTorch (`google/flan-t5-base`) |
-| Frontend | Streamlit |
-| Knowledge base | Plain text (`college_data.txt`) |
+- **Python**
+- **scikit-learn** — TF-IDF retrieval
+- **Transformers + PyTorch** — FLAN-T5 (`google/flan-t5-base`)
+- **Streamlit** — web UI
 
 ---
 
+## Academic submission
+
+Include in your report:
+
+1. **Title:** Domain-Specific Chatbot Using RAG for Healthcare FAQs  
+2. **Architecture diagram** (retrieve → generate)  
+3. **Screenshots** from `output/`:
+   - Chat UI home
+   - Sample Q&A (e.g. appointments or insurance)
+   - **View retrieved context** expander (proves RAG retrieval step)  
+4. Note: answers are **grounded** in `healthcare_data.txt`, not open-ended medical advice
+
+---
 
 ## License / credits
 
 - Model: [google/flan-t5-base](https://huggingface.co/google/flan-t5-base) (Apache 2.0)
-- College GenAI project submission
+- GenAI academic project — healthcare domain RAG demonstration

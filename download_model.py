@@ -1,12 +1,11 @@
 """
-Download and cache google/flan-t5-base locally (~1 GB).
-
-Optional — app_local.py downloads automatically on first run.
+Optional: pre-download google/flan-t5-base (~1 GB).
+app.py downloads automatically on first run if you skip this step.
 
     python download_model.py
 """
 
-from college_chatbot import DEFAULT_MODEL_ID
+from healthcare_chatbot import DEFAULT_MODEL_ID
 
 
 def main():
@@ -19,7 +18,7 @@ def main():
     AutoModelForSeq2SeqLM.from_pretrained(DEFAULT_MODEL_ID)
 
     print("\nDone. The model is cached and ready.")
-    print("Run:  streamlit run app_local.py")
+    print("Run:  streamlit run app.py")
 
 
 if __name__ == "__main__":
