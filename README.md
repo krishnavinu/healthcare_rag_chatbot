@@ -156,19 +156,6 @@ It is **not** available on Hugging Faceâ€™s free **Inference Providers** API (â€
 
 ---
 
-## Academic submission checklist
-
-1. Run `streamlit run app_local.py` and test sample questions.
-2. Save screenshots to **`output/`**:
-   - Home / chat screen
-   - Sample Q&A
-   - **View retrieved context** expander open
-3. In your report, mention:
-   - **RAG** (retrieve from `college_data.txt`, then generate)
-   - **Local GenAI** with FLAN-T5 (no paid API required)
-   - Screenshot paths: `output/` folder
-
----
 
 ## License / credits
 
