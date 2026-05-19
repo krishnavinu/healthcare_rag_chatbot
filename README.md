@@ -135,19 +135,7 @@ Example topics: appointments, emergency, visiting hours, insurance, laboratory, 
 - **Transformers + PyTorch** — FLAN-T5 (`google/flan-t5-base`)
 - **Streamlit** — web UI
 
----
 
-## Academic submission
-
-Include in your report:
-
-1. **Title:** Domain-Specific Chatbot Using RAG for Healthcare FAQs  
-2. **Architecture diagram** (retrieve → generate)  
-3. **Screenshots** from `output/`:
-   - Chat UI home
-   - Sample Q&A (e.g. appointments or insurance)
-   - **View retrieved context** expander (proves RAG retrieval step)  
-4. Note: answers are **grounded** in `healthcare_data.txt`, not open-ended medical advice
 
 ---
 
